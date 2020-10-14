@@ -5,6 +5,6 @@
 #ifndef CLI_CLI_H
 #define CLI_CLI_H
 
-#include "Detail/abstract_command.h"
+#include "Detail/menu.h"
 
 #endif // CLI_CLI_H

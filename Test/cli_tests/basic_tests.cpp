@@ -8,4 +8,4 @@
 
 TEST(NothingTests, FirstTest) { EXPECT_TRUE(true); }
 
-TEST(LinkTests, LinkingWorks) {}
+TEST(LinkTests, LinkingWorks) { cli::Menu menu {"word name"}; }

@@ -10,25 +10,25 @@
 
 namespace cli {
 
-class AbstractCommand {
-public:
-  AbstractCommand() = delete;
+  class AbstractCommand {
+  public:
+    AbstractCommand() = delete;
 
-protected:
-  explicit AbstractCommand(std::string name);
-  AbstractCommand(const AbstractCommand&);
-  AbstractCommand(AbstractCommand&&) noexcept;
-  AbstractCommand& operator=(const AbstractCommand&);
-  AbstractCommand& operator=(AbstractCommand&&) noexcept;
+  protected:
+    explicit AbstractCommand(std::string name);
+    AbstractCommand(const AbstractCommand&);
+    AbstractCommand(AbstractCommand&&) noexcept;
+    AbstractCommand& operator=(const AbstractCommand&);
+    AbstractCommand& operator=(AbstractCommand&&) noexcept;
 
-public:
-  virtual ~AbstractCommand() noexcept;
+  public:
+    virtual ~AbstractCommand() noexcept;
 
-  [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const = 0;
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const = 0;
 
-protected:
-  std::string name;
-};
+  protected:
+    std::string name_;
+  };
 
 } // namespace cli
 
