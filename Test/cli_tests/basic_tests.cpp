@@ -4,4 +4,8 @@
 
 #include "gtest/gtest.h"
 
+#include "cli.h"
+
 TEST(NothingTests, FirstTest) { EXPECT_TRUE(true); }
+
+TEST(LinkTests, LinkingWorks) {}

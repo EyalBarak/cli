@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(run_tests basic_tests.cpp)
 
-target_link_libraries(run_tests gtest gtest_main)
+target_link_libraries(run_tests gtest gtest_main cli_lib)
