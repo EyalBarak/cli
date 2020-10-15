@@ -16,4 +16,11 @@ namespace cli {
   AbstractCommand&
   AbstractCommand::operator=(AbstractCommand&&) noexcept = default;
   AbstractCommand::~AbstractCommand() noexcept           = default;
+
+  void AbstractCommand::swap(AbstractCommand& other) noexcept {
+    name_.swap(other.name_);
+  }
+
+  const std::string& AbstractCommand::name() noexcept { return name_; }
+
 } // namespace cli

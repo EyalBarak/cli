@@ -21,10 +21,16 @@ namespace cli {
     AbstractCommand& operator=(const AbstractCommand&);
     AbstractCommand& operator=(AbstractCommand&&) noexcept;
 
+    void swap(AbstractCommand&) noexcept;
+
   public:
     virtual ~AbstractCommand() noexcept;
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const = 0;
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const& = 0;
+
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() && = 0;
+
+    const std::string& name() noexcept;
 
   protected:
     std::string name_;

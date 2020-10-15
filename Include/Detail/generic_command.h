@@ -26,9 +26,17 @@ namespace cli {
 
     ~GenericCommand() noexcept override = default;
 
+    void swap(GenericCommand& other) { AbstractCommand::swap(other); }
+
   public:
-    [[nodiscard]] std::unique_ptr<AbstractCommand> clone() const override {
+    [[nodiscard]] std::unique_ptr<AbstractCommand>
+    clone() const& override final {
       return std::make_unique<Derived>(static_cast<const Derived&>(*this));
+    }
+
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand>
+        clone() && override final {
+      return std::make_unique<Derived>(std::move(static_cast<Derived&>(*this)));
     }
   };
 } // namespace cli
