@@ -46,7 +46,9 @@ namespace cli {
 
     [[nodiscard]] virtual std::unique_ptr<AbstractCommand> toUnique() && = 0;
 
-    const std::string& name() noexcept;
+    [[nodiscard]] const std::string&              name() const noexcept;
+    [[nodiscard]] const std::vector<std::string>& paramNames() const noexcept;
+    [[nodiscard]] const std::string&              description() const noexcept;
 
     [[nodiscard]] virtual Menu*
     execute(std::vector<std::string>::const_iterator first_param,

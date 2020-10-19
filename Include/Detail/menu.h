@@ -34,6 +34,9 @@ namespace cli {
 
     [[nodiscard]] AbstractCommand* findCommand(const std::string& name) const;
 
+    [[nodiscard]] const std::vector<std::unique_ptr<AbstractCommand>>&
+    commands() const noexcept;
+
   private:
     std::vector<std::unique_ptr<AbstractCommand>> commands_;
   };

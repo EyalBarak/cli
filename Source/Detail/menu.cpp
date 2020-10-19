@@ -42,14 +42,18 @@ namespace cli {
     return std::move(*this);
   }
 
-  [[nodiscard]] AbstractCommand*
-  Menu::findCommand(const std::string& name) const {
+  AbstractCommand* Menu::findCommand(const std::string& name) const {
     auto it {std::find_if(
         commands_.begin(), commands_.end(),
         [&name](const auto& cmd_ptr) { return (cmd_ptr->name() == name); })};
 
     if (it == commands_.end()) return nullptr;
     return it->get();
+  }
+
+  const std::vector<std::unique_ptr<AbstractCommand>>&
+  Menu::commands() const noexcept {
+    return commands_;
   }
 
 } // namespace cli

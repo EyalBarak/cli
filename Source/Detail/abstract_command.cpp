@@ -15,6 +15,14 @@ namespace cli {
   AbstractCommand::AbstractCommand(AbstractCommand&&) noexcept = default;
   AbstractCommand::~AbstractCommand() noexcept                 = default;
 
-  const std::string& AbstractCommand::name() noexcept { return name_; }
+  const std::string& AbstractCommand::name() const noexcept { return name_; }
+
+  const std::vector<std::string>& AbstractCommand::paramNames() const noexcept {
+    return param_names_;
+  }
+
+  const std::string& AbstractCommand::description() const noexcept {
+    return description_;
+  }
 
 } // namespace cli

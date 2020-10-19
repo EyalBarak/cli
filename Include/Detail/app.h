@@ -28,6 +28,7 @@ namespace cli {
 
     static const std::string Back;
     static const std::string Quit;
+    static const std::string Help;
 
   private:
     Menu              root_;
@@ -39,6 +40,12 @@ namespace cli {
 
     [[nodiscard]] AbstractCommand*
     findOptionalCommand(const std::string& name) const noexcept;
+
+    void metaCommand(const std::vector<std::string>& cmd_line);
+
+    void doBack();
+    void doQuit();
+    void doHelp();
   };
 
 } // namespace cli

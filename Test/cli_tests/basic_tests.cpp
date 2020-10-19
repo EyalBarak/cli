@@ -28,11 +28,11 @@ TEST(BasicMenuTests, MenuCopyAndClone) {
 TEST(BasicMenuTests, FirstFreeForm) {
   using Mu = cli::Menu;
 
-  auto root {Mu("menu")
-                 .add(Mu("sub1").add(Mu("subsub1.1")))
-                 .add(Mu("sub2").add(Mu("subsub2.1")).add(Mu("subsub2.2")))
-                 .add(Mu("sub3"))
-                 .add(Mu("sub4"))};
-
-  cli::App(std::move(root), std::cin, std::cout).run();
+  cli::App(Mu("menu")
+               .add(Mu("sub1").add(Mu("subsub1.1")))
+               .add(Mu("sub2").add(Mu("subsub2.1")).add(Mu("subsub2.2")))
+               .add(Mu("sub3"))
+               .add(Mu("sub4")),
+           std::cin, std::cout)
+      .run();
 }
