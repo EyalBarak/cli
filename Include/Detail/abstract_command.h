@@ -30,7 +30,7 @@ namespace cli {
         name_(name),
         param_names_(param_names), description_(description),
         arg_handler_(makeArgHandler(std::forward<F>(f))) {
-      // static_assert(param_names.size() == util::count_arguments(f));
+      // TODO handle wrong length
     }
     AbstractCommand(const AbstractCommand&);
     AbstractCommand(AbstractCommand&&) noexcept;

@@ -7,5 +7,6 @@
 
 #include "Detail/app.h"
 #include "Detail/menu.h"
+#include "Detail/simple_command.h"
 
 #endif // CLI_CLI_H

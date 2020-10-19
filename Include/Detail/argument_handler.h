@@ -57,8 +57,8 @@ namespace cli {
       current_argument_string >> current_argument;
       if (!current_argument_string.eof()) {} // TODO throw
 
-      auto my_invokable = [&](Args&&... args) {
-        f(current_argument, std::forward<Args>(args)...);
+      auto my_invokable = [&](const Args&... args) {
+        f(current_argument, args...);
       };
 
       Invoker<decltype(my_invokable), Args...>::invoke(my_invokable, ++first,
@@ -87,9 +87,7 @@ namespace cli {
                 std::istream& is, std::ostream& os) const override {
       assert(end_param - first_param == sizeof...(Args));
 
-      auto pass_streams = [&](Args&&... args) {
-        f_(is, os, std::forward<Args>(args)...);
-      };
+      auto pass_streams = [&](const Args&... args) { f_(is, os, args...); };
 
       Invoker<decltype(pass_streams), Args...>::invoke(pass_streams,
                                                        first_param, end_param);

@@ -36,3 +36,19 @@ TEST(BasicMenuTests, FirstFreeForm) {
            std::cin, std::cout)
       .run();
 }
+
+TEST(SimpleCommandTests, FreeFormWithMenu) {
+  using Mu  = cli::Menu;
+  using Cmd = cli::SimpleCommand;
+
+  cli::App(Mu("base")
+               .add(Mu("sub").add(Mu("subsub")))
+               .add(Cmd(
+                   "ADD", {"num1", "num2"},
+                   [](std::istream& is, std::ostream& os, int a, int b) {
+                     os << (a + b) << '\n';
+                   },
+                   "Adds two numbers")),
+           std::cin, std::cout)
+      .run();
+}
