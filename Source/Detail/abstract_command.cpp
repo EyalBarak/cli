@@ -8,18 +8,12 @@
 
 namespace cli {
 
-  AbstractCommand::AbstractCommand(std::string name) : name_(std::move(name)) {}
-  AbstractCommand::AbstractCommand(const AbstractCommand&)     = default;
+  AbstractCommand::AbstractCommand(const AbstractCommand& original) :
+      name_(original.name_), param_names_(original.param_names_),
+      description_(original.description_),
+      arg_handler_(original.arg_handler_->clone()) {}
   AbstractCommand::AbstractCommand(AbstractCommand&&) noexcept = default;
-  AbstractCommand&
-  AbstractCommand::operator=(const AbstractCommand& rhs) = default;
-  AbstractCommand&
-  AbstractCommand::operator=(AbstractCommand&&) noexcept = default;
-  AbstractCommand::~AbstractCommand() noexcept           = default;
-
-  void AbstractCommand::swap(AbstractCommand& other) noexcept {
-    name_.swap(other.name_);
-  }
+  AbstractCommand::~AbstractCommand() noexcept                 = default;
 
   const std::string& AbstractCommand::name() noexcept { return name_; }
 

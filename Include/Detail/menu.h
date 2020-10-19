@@ -17,23 +17,26 @@ namespace cli {
   class Menu final : public GenericCommand<Menu> {
   public:
     Menu() = delete;
-    explicit Menu(std::string name);
+    explicit Menu(const std::string& name);
     Menu(const Menu&);
     Menu(Menu&&) noexcept;
-    Menu& operator=(const Menu&);
-    Menu& operator=(Menu&&) noexcept;
+    Menu& operator=(const Menu&) = delete;
+    Menu& operator=(Menu&&) = delete;
 
     ~Menu() noexcept override;
 
-    void swap(Menu&) noexcept;
+    [[nodiscard]] Menu*
+    execute(std::vector<std::string>::const_iterator first_param,
+            std::vector<std::string>::const_iterator end_param,
+            std::istream& is, std::ostream& os) const override;
 
-    Menu& add(AbstractCommand&& submenu);
+    Menu&& add(AbstractCommand&& submenu) &&;
+
+    [[nodiscard]] AbstractCommand* findCommand(const std::string& name) const;
 
   private:
     std::vector<std::unique_ptr<AbstractCommand>> commands_;
   };
-
-  void swap(Menu& lhs, Menu& rhs) noexcept;
 
 } // namespace cli
 

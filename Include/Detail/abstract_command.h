@@ -5,35 +5,59 @@
 #ifndef CLI_ABSTRACT_COMMAND_H
 #define CLI_ABSTRACT_COMMAND_H
 
+#include <initializer_list>
+#include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
+
+#include "Util/meta.h"
+#include "argument_handler.h"
 
 namespace cli {
+
+  class Menu;
 
   class AbstractCommand {
   public:
     AbstractCommand() = delete;
 
   protected:
-    explicit AbstractCommand(std::string name);
+    template<typename F>
+    AbstractCommand(const std::string&                 name,
+                    std::initializer_list<std::string> param_names, F&& f,
+                    const std::string& description) :
+        name_(name),
+        param_names_(param_names), description_(description),
+        arg_handler_(makeArgHandler(std::forward<F>(f))) {
+      // static_assert(param_names.size() == util::count_arguments(f));
+    }
     AbstractCommand(const AbstractCommand&);
     AbstractCommand(AbstractCommand&&) noexcept;
-    AbstractCommand& operator=(const AbstractCommand&);
-    AbstractCommand& operator=(AbstractCommand&&) noexcept;
 
-    void swap(AbstractCommand&) noexcept;
+  public:
+    AbstractCommand& operator=(const AbstractCommand&) = delete;
+    AbstractCommand& operator=(AbstractCommand&&) = delete;
 
   public:
     virtual ~AbstractCommand() noexcept;
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const& = 0;
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() const = 0;
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> clone() && = 0;
+    [[nodiscard]] virtual std::unique_ptr<AbstractCommand> toUnique() && = 0;
 
     const std::string& name() noexcept;
 
+    [[nodiscard]] virtual Menu*
+    execute(std::vector<std::string>::const_iterator first_param,
+            std::vector<std::string>::const_iterator end_param,
+            std::istream& is, std::ostream& os) const = 0;
+
   protected:
-    std::string name_;
+    std::string                      name_;
+    std::vector<std::string>         param_names_;
+    std::string                      description_;
+    std::unique_ptr<ArgumentHandler> arg_handler_;
   };
 
 } // namespace cli

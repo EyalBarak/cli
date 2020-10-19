@@ -17,25 +17,29 @@ namespace cli {
     GenericCommand() = delete;
 
   protected:
-    explicit GenericCommand(std::string name) :
-        AbstractCommand(std::move(name)) {}
+    template<typename F>
+    GenericCommand(const std::string&                 name,
+                   std::initializer_list<std::string> param_names, F&& f,
+                   const std::string& description) :
+        AbstractCommand(name, param_names, std::forward<F>(f), description) {}
     GenericCommand(const GenericCommand&)     = default;
     GenericCommand(GenericCommand&&) noexcept = default;
-    GenericCommand& operator=(const GenericCommand&) = default;
-    GenericCommand& operator=(GenericCommand&&) noexcept = default;
 
+  public:
+    GenericCommand& operator=(const GenericCommand&) = delete;
+    GenericCommand& operator=(GenericCommand&&) = delete;
+
+  protected:
     ~GenericCommand() noexcept override = default;
-
-    void swap(GenericCommand& other) { AbstractCommand::swap(other); }
 
   public:
     [[nodiscard]] std::unique_ptr<AbstractCommand>
-    clone() const& override final {
+    clone() const final override {
       return std::make_unique<Derived>(static_cast<const Derived&>(*this));
     }
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCommand>
-        clone() && override final {
+    [[nodiscard]] std::unique_ptr<AbstractCommand>
+        toUnique() && final override {
       return std::make_unique<Derived>(std::move(static_cast<Derived&>(*this)));
     }
   };

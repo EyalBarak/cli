@@ -12,7 +12,10 @@
 
 namespace cli {
 
-  Menu::Menu(std::string name) : GenericCommand(std::move(name)), commands_() {}
+  Menu::Menu(const std::string& name) :
+      GenericCommand(
+          name, {}, [](std::istream&, std::ostream&) {}, ""),
+      commands_() {}
   Menu::Menu(const Menu& original) :
       GenericCommand(original), commands_([&original] {
         auto commands_copy {std::vector<std::unique_ptr<AbstractCommand>>(
@@ -24,24 +27,29 @@ namespace cli {
         return commands_copy;
       }()) {}
   Menu::Menu(Menu&&) noexcept = default;
-  Menu& Menu::operator        =(const Menu& rhs) {
-    auto copy {rhs};
-    swap(copy);
-    return *this;
-  }
-  Menu& Menu::operator=(Menu&&) noexcept = default;
-  Menu::~Menu() noexcept                 = default;
+  Menu::~Menu() noexcept      = default;
 
-  void Menu::swap(Menu& other) noexcept {
-    GenericCommand::swap(other);
-    commands_.swap(other.commands_);
+  Menu* Menu::execute(std::vector<std::string>::const_iterator first_param,
+                      std::vector<std::string>::const_iterator end_param,
+                      std::istream& is, std::ostream& os) const {
+    arg_handler_->handle(first_param, end_param, is, os);
+    return const_cast<Menu*>(this);
   }
 
-  Menu& Menu::add(AbstractCommand&& command) {
-    commands_.emplace_back(std::move(command).clone());
-    return *this;
+  Menu&& Menu::add(AbstractCommand&& command) && {
+    // TODO prevent overloads
+    commands_.emplace_back(std::move(command).toUnique());
+    return std::move(*this);
   }
 
-  void swap(Menu& lhs, Menu& rhs) noexcept { lhs.swap(rhs); }
+  [[nodiscard]] AbstractCommand*
+  Menu::findCommand(const std::string& name) const {
+    auto it {std::find_if(
+        commands_.begin(), commands_.end(),
+        [&name](const auto& cmd_ptr) { return (cmd_ptr->name() == name); })};
+
+    if (it == commands_.end()) return nullptr;
+    return it->get();
+  }
 
 } // namespace cli

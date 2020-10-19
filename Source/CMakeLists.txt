@@ -11,4 +11,4 @@ add_compile_options(-O0 -g3)
 
 add_library(cli_lib ../Include/cli.h ../Include/Detail/abstract_command.h
         Detail/abstract_command.cpp ../Include/Detail/generic_command.h
-        ../Include/Detail/menu.h Detail/menu.cpp)
+        ../Include/Detail/menu.h Detail/menu.cpp ../Include/Detail/app.h Detail/app.cpp ../Include/Detail/argument_handler.h)
