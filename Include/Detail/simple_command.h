@@ -18,8 +18,7 @@ namespace cli {
     SimpleCommand(const std::string&                 name,
                   std::initializer_list<std::string> param_names, F&& f,
                   const std::string& description) :
-        GenericCommand(name, param_names, std::forward<F>(f), description) {
-    } // TODO count params
+        GenericCommand(name, param_names, std::forward<F>(f), description) {}
 
     SimpleCommand(const SimpleCommand&);
     SimpleCommand(SimpleCommand&&) noexcept;
@@ -28,10 +27,11 @@ namespace cli {
 
     ~SimpleCommand() noexcept override;
 
+  protected:
     [[nodiscard]] Menu*
-    execute(std::vector<std::string>::const_iterator first_param,
-            std::vector<std::string>::const_iterator end_param,
-            std::istream& is, std::ostream& os) const override;
+    executeImpl(std::vector<std::string>::const_iterator first_param,
+                std::vector<std::string>::const_iterator end_param,
+                std::istream& is, std::ostream& os) const override;
   };
 
 } // namespace cli

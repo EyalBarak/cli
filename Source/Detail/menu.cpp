@@ -16,6 +16,7 @@ namespace cli {
       GenericCommand(
           name, {}, [](std::istream&, std::ostream&) {}, ""),
       commands_() {}
+
   Menu::Menu(const Menu& original) :
       GenericCommand(original), commands_([&original] {
         auto commands_copy {std::vector<std::unique_ptr<AbstractCommand>>(
@@ -26,18 +27,25 @@ namespace cli {
                        });
         return commands_copy;
       }()) {}
+
   Menu::Menu(Menu&&) noexcept = default;
   Menu::~Menu() noexcept      = default;
 
-  Menu* Menu::execute(std::vector<std::string>::const_iterator first_param,
-                      std::vector<std::string>::const_iterator end_param,
-                      std::istream& is, std::ostream& os) const {
+  Menu* Menu::executeImpl(std::vector<std::string>::const_iterator first_param,
+                          std::vector<std::string>::const_iterator end_param,
+                          std::istream& is, std::ostream& os) const {
     arg_handler_->handle(first_param, end_param, is, os);
     return const_cast<Menu*>(this);
   }
 
   Menu&& Menu::add(AbstractCommand&& command) && {
-    // TODO prevent overloads
+    if (std::find_if(commands_.begin(), commands_.end(),
+                     [&command](const auto& cmd_ptr) {
+                       return (cmd_ptr->name() == command.name());
+                     }) != commands_.end()) {
+      throw IllegalOverload {name_, command.name()};
+    }
+
     commands_.emplace_back(std::move(command).toUnique());
     return std::move(*this);
   }

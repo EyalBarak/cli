@@ -13,6 +13,7 @@
 
 #include "Util/meta.h"
 #include "argument_handler.h"
+#include "cli_exceptions.h"
 
 namespace cli {
 
@@ -30,7 +31,12 @@ namespace cli {
         name_(name),
         param_names_(param_names), description_(description),
         arg_handler_(makeArgHandler(std::forward<F>(f))) {
-      // TODO handle wrong length
+      if (param_names.size() !=
+          (util::count_arguments(std::forward<F>(f)) - 2)) {
+        throw ArgumentLengthError {
+            name, param_names.size(),
+            (util::count_arguments(std::forward<F>(f)) - 2)};
+      }
     }
     AbstractCommand(const AbstractCommand&);
     AbstractCommand(AbstractCommand&&) noexcept;
@@ -49,17 +55,23 @@ namespace cli {
     [[nodiscard]] const std::string&              name() const noexcept;
     [[nodiscard]] const std::vector<std::string>& paramNames() const noexcept;
     [[nodiscard]] const std::string&              description() const noexcept;
+    [[nodiscard]] std::size_t                     numArguments() const noexcept;
 
-    [[nodiscard]] virtual Menu*
+    [[nodiscard]] Menu*
     execute(std::vector<std::string>::const_iterator first_param,
             std::vector<std::string>::const_iterator end_param,
-            std::istream& is, std::ostream& os) const = 0;
+            std::istream& is, std::ostream& os) const;
 
   protected:
     std::string                      name_;
     std::vector<std::string>         param_names_;
     std::string                      description_;
     std::unique_ptr<ArgumentHandler> arg_handler_;
+
+    [[nodiscard]] virtual Menu*
+    executeImpl(std::vector<std::string>::const_iterator first_param,
+                std::vector<std::string>::const_iterator end_param,
+                std::istream& is, std::ostream& os) const = 0;
   };
 
 } // namespace cli

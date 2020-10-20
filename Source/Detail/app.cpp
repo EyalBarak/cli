@@ -4,11 +4,13 @@
 
 #include "Detail/app.h"
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
 
 #include "Detail/Util/string_algs.h"
+#include "Detail/simple_command.h"
 
 namespace cli {
 
@@ -16,8 +18,25 @@ namespace cli {
   const std::string App::Quit {"quit"};
   const std::string App::Help {"help"};
 
-  App::App(Menu&& root, std::istream& is, std::ostream& os) :
-      root_(std::move(root)), is_(is), os_(os), calls_() {}
+  using namespace std::literals;
+
+  App::App(Menu&& root, std::istream& is, std::ostream& os,
+           const std::string& welcome, const std::string& goodbye) :
+      root_(std::move(root)),
+      is_(is), os_(os), calls_(), welcome_(welcome), goodbye_(goodbye),
+      meta_commands_ {
+          SimpleCommand {Help,
+                         {},
+                         [this](std::istream&, std::ostream&) { doHelp(); },
+                         "Print this."},
+          SimpleCommand {Back,
+                         {},
+                         [this](std::istream&, std::ostream&) { doBack(); },
+                         "Go to previous menu."},
+          SimpleCommand {Quit,
+                         {},
+                         [this](std::istream&, std::ostream&) { doQuit(); },
+                         "Quit all."}} {}
 
   App::App(App&&) = default;
 
@@ -25,7 +44,7 @@ namespace cli {
 
   void App::run() {
     doQuit();
-
+    os_ << welcome_ << std::endl;
     calls_.push(&root_);
 
     doHelp();
@@ -37,21 +56,23 @@ namespace cli {
       auto cmd_line {util::string_split(buffer)};
       if (cmd_line.empty()) continue;
 
-      auto cmd_ptr {findOptionalCommand(cmd_line.front())};
-      // TODO errors
-      if (cmd_ptr != nullptr) {
-        auto next_ptr {
-            cmd_ptr->execute(cmd_line.cbegin() + 1, cmd_line.cend(), is_, os_)};
-        if (next_ptr != nullptr) {
-          calls_.push(next_ptr);
-          doHelp();
+      auto cmd_ptr {calls_.top()->findCommand(cmd_line.front())};
+      try {
+        if (cmd_ptr != nullptr) {
+          auto next_ptr {cmd_ptr->execute(cmd_line.cbegin() + 1,
+                                          cmd_line.cend(), is_, os_)};
+          if (next_ptr != nullptr) {
+            calls_.push(next_ptr);
+            doHelp();
+          }
+        } else {
+          metaCommand(cmd_line);
         }
-      } else {
-        metaCommand(cmd_line);
-      }
+      } catch (const UserError& error) { os_ << error.what() << std::endl; }
     }
 
     doQuit();
+    os_ << goodbye_ << std::endl;
   }
 
   void App::prompt() {
@@ -59,23 +80,21 @@ namespace cli {
     os_ << calls_.top()->name() << "> ";
   }
 
-  AbstractCommand*
-  App::findOptionalCommand(const std::string& name) const noexcept {
-    assert(!calls_.empty());
-    return calls_.top()->findCommand(name);
-  }
-
   void App::metaCommand(const std::vector<std::string>& cmd_line) {
     assert(!cmd_line.empty());
-    if (cmd_line.size() != 1) {} // TODO throw
-    if (cmd_line.front() == Back) {
-      doBack();
-    } else if (cmd_line.front() == Quit) {
-      doQuit();
-    } else if (cmd_line.front() == Help) {
-      doHelp();
+
+    auto it {std::find_if(meta_commands_.cbegin(), meta_commands_.cend(),
+                          [&cmd_line](const auto& cmd) {
+                            return (cmd.name() == cmd_line.front());
+                          })};
+
+    if (it != meta_commands_.cend()) {
+      static_cast<void>(
+          it->execute(cmd_line.cbegin() + 1, cmd_line.cend(), is_, os_));
     } else {
-    } // TODO throw
+      throw UserError {"Unrecognised command '"s + cmd_line.front() +
+                       "', type '" + Help + "' for info."};
+    }
   }
 
   void App::doBack() {
@@ -90,16 +109,24 @@ namespace cli {
 
   void App::doHelp() {
     assert(!calls_.empty());
-    for (const auto& cmd : calls_.top()->commands()) {
-      os_ << cmd->name();
-      for (const auto& param : cmd->paramNames())
+
+    prompt();
+    os_ << std::endl;
+
+    auto print_command = [this](const auto& cmd) {
+      os_ << '\t' << cmd.name();
+      for (const auto& param : cmd.paramNames())
         os_ << " <" << param << '>';
-      os_ << ":\n\t" << cmd->description() << "\n";
+      os_ << ":\n\t\t" << cmd.description() << "\n";
+    };
+
+    for (const auto& cmd_ptr : calls_.top()->commands()) {
+      print_command(*cmd_ptr);
     }
 
-    os_ << Help << ":\n\tPrint this.\n";
-    os_ << Back << ":\n\tGo to previous menu.\n";
-    os_ << Quit << ":\n\tQuit all.\n";
+    for (const auto& cmd : meta_commands_) {
+      print_command(cmd);
+    }
   }
 
 } // namespace cli

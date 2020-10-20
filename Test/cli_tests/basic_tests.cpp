@@ -46,9 +46,15 @@ TEST(SimpleCommandTests, FreeFormWithMenu) {
                .add(Cmd(
                    "ADD", {"num1", "num2"},
                    [](std::istream& is, std::ostream& os, int a, int b) {
-                     os << (a + b) << '\n';
+                     os << (a + b) << std::endl;
                    },
-                   "Adds two numbers")),
+                   "Adds two numbers"))
+               .add(Cmd(
+                   "OR", {"boolean", "boolean"},
+                   [](std::istream&, std::ostream& os, bool a, bool b) {
+                     os << std::boolalpha << (a || b) << std::endl;
+                   },
+                   "Performs logic or")),
            std::cin, std::cout)
       .run();
 }

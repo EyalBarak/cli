@@ -8,16 +8,20 @@
 #include <iostream>
 #include <memory>
 #include <stack>
+#include <vector>
 
 #include "abstract_command.h"
 #include "menu.h"
+#include "simple_command.h"
 
 namespace cli {
 
   class App final {
   public:
     App() = delete;
-    App(Menu&& root, std::istream& is, std::ostream& os);
+    App(Menu&& root, std::istream& is, std::ostream& os,
+        const std::string& welcome = "WELCOME!!!",
+        const std::string& goodbye = "GOODBYE!!!");
     App(const App&) = delete;
     App(App&&);
     App& operator=(const App&) = delete;
@@ -31,15 +35,15 @@ namespace cli {
     static const std::string Help;
 
   private:
-    Menu              root_;
-    std::istream&     is_;
-    std::ostream&     os_;
-    std::stack<Menu*> calls_;
+    Menu                       root_;
+    std::istream&              is_;
+    std::ostream&              os_;
+    std::stack<Menu*>          calls_;
+    std::string                welcome_;
+    std::string                goodbye_;
+    std::vector<SimpleCommand> meta_commands_;
 
     void prompt();
-
-    [[nodiscard]] AbstractCommand*
-    findOptionalCommand(const std::string& name) const noexcept;
 
     void metaCommand(const std::vector<std::string>& cmd_line);
 

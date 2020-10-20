@@ -15,6 +15,8 @@
 #include <utility>
 #include <vector>
 
+#include "cli_exceptions.h"
+
 namespace cli {
 
   class ArgumentHandler {
@@ -52,10 +54,19 @@ namespace cli {
     static void invoke(F f, std::vector<std::string>::const_iterator first,
                        std::vector<std::string>::const_iterator last) {
       assert(first != last);
-      std::istringstream current_argument_string {*first};
+      std::istringstream current_stream {*first};
       Arg                current_argument {};
-      current_argument_string >> current_argument;
-      if (!current_argument_string.eof()) {} // TODO throw
+      if constexpr (std::is_same_v<Arg, bool>) {
+        current_stream >> std::boolalpha;
+      }
+      current_stream >> current_argument;
+
+      if ((current_stream.tellg() != first->size() && !current_stream.eof()) ||
+          (!current_stream.eof() && current_stream.fail())) {
+        // TODO still buggy with bool
+        using namespace std::literals;
+        throw UserError {"Couldn't parse '"s + *first + "'."};
+      } // TODO more info
 
       auto my_invokable = [&](const Args&... args) {
         f(current_argument, args...);

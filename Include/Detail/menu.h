@@ -25,17 +25,18 @@ namespace cli {
 
     ~Menu() noexcept override;
 
-    [[nodiscard]] Menu*
-    execute(std::vector<std::string>::const_iterator first_param,
-            std::vector<std::string>::const_iterator end_param,
-            std::istream& is, std::ostream& os) const override;
-
     Menu&& add(AbstractCommand&& submenu) &&;
 
     [[nodiscard]] AbstractCommand* findCommand(const std::string& name) const;
 
     [[nodiscard]] const std::vector<std::unique_ptr<AbstractCommand>>&
     commands() const noexcept;
+
+  protected:
+    [[nodiscard]] Menu*
+    executeImpl(std::vector<std::string>::const_iterator first_param,
+                std::vector<std::string>::const_iterator end_param,
+                std::istream& is, std::ostream& os) const override;
 
   private:
     std::vector<std::unique_ptr<AbstractCommand>> commands_;

@@ -8,6 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_options(-O0 -g3)
 
-add_executable(run_tests basic_tests.cpp)
+add_executable(run_tests basic_tests.cpp exception_tests.cpp)
 
 target_link_libraries(run_tests gtest gtest_main cli_lib)
