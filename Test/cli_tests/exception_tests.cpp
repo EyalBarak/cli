@@ -7,6 +7,8 @@
 #include "Detail/cli_exceptions.h"
 #include "cli.h"
 
+#include <stdexcept>
+
 TEST(ArgumentLength, GetsThrown) {
   EXPECT_THROW(cli::SimpleCommand(
                    "e", {}, [](std::istream&, std::ostream&, int) {}, "d"),
@@ -22,4 +24,8 @@ TEST(OverloadError, GetsThrown) {
   EXPECT_THROW(
       cli::Menu("menu").add(cli::Menu("submenu")).add(cli::Menu("submenu")),
       cli::IllegalOverload);
+}
+
+TEST(InvalidName, WhiteSpaceName) {
+  EXPECT_THROW(cli::Menu(" hi "), std::invalid_argument);
 }

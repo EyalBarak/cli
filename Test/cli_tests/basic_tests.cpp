@@ -11,7 +11,7 @@
 TEST(NothingTests, FirstTest) { EXPECT_TRUE(true); }
 
 TEST(LinkTests, LinkingWorks) {
-  cli::Menu menu {"word name"};
+  cli::Menu menu {"word_name"};
   auto      copy {menu.clone()};
 }
 
@@ -44,17 +44,23 @@ TEST(SimpleCommandTests, FreeFormWithMenu) {
   cli::App(Mu("base")
                .add(Mu("sub").add(Mu("subsub")))
                .add(Cmd(
-                   "ADD", {"num1", "num2"},
-                   [](std::istream& is, std::ostream& os, int a, int b) {
-                     os << (a + b) << std::endl;
-                   },
-                   "Adds two numbers"))
-               .add(Cmd(
-                   "OR", {"boolean", "boolean"},
-                   [](std::istream&, std::ostream& os, bool a, bool b) {
-                     os << std::boolalpha << (a || b) << std::endl;
-                   },
-                   "Performs logic or")),
-           std::cin, std::cout)
+              "ADD", {"num1", "num2"},
+              [](std::istream& is, std::ostream& os, int a, int b) {
+                os << (a + b) << std::endl;
+              },
+              "Adds two numbers."))
+          .add(Cmd(
+              "OR", {"boolean", "boolean"},
+              [](std::istream&, std::ostream& os, bool a, bool b) {
+                os << std::boolalpha << (a || b) << std::endl;
+              },
+              "Performs logic or."))
+          .add(Cmd(
+              "say_hi", {"name"},
+              [](std::istream&, std::ostream& os, const std::string& name) {
+                os << "Hello, " << name << "!" << std::endl;
+              },
+              "Says hello.")),
+      std::cin, std::cout)
       .run();
 }

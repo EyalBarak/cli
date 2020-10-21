@@ -5,9 +5,11 @@
 #ifndef CLI_ABSTRACT_COMMAND_H
 #define CLI_ABSTRACT_COMMAND_H
 
+#include <algorithm>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -36,6 +38,11 @@ namespace cli {
         throw ArgumentLengthError {
             name, param_names.size(),
             (util::count_arguments(std::forward<F>(f)) - 2)};
+      }
+      if (std::find(name.cbegin(), name.cend(), ' ') != name.cend()) {
+        using namespace std::literals;
+        throw std::invalid_argument {"Error: '"s + name +
+                                     "' contains whitespace."};
       }
     }
     AbstractCommand(const AbstractCommand&);

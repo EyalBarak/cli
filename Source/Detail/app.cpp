@@ -119,9 +119,11 @@ namespace cli {
 
     auto print_command = [this](const auto& cmd) {
       os_ << '\t' << cmd.name();
-      for (const auto& param : cmd.paramNames())
+      for (const auto& param : cmd.paramNames()) {
         os_ << " <" << param << '>';
-      os_ << ":\n\t\t" << cmd.description() << "\n";
+      }
+      if (!cmd.description().empty()) { os_ << " -"; }
+      os_ << "\n\t\t" << cmd.description() << '\n';
     };
 
     for (const auto& cmd_ptr : calls_.top()->commands()) {
