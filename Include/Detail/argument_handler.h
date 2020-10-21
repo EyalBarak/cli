@@ -54,16 +54,14 @@ namespace cli {
     static void invoke(F f, std::vector<std::string>::const_iterator first,
                        std::vector<std::string>::const_iterator last) {
       assert(first != last);
-      std::istringstream current_stream {*first};
-      Arg                current_argument {};
+      std::istringstream current_stream {*first + ' '};
+      std::decay_t<Arg>  current_argument {};
       if constexpr (std::is_same_v<Arg, bool>) {
         current_stream >> std::boolalpha;
       }
       current_stream >> current_argument;
 
-      if ((current_stream.tellg() != first->size() && !current_stream.eof()) ||
-          (!current_stream.eof() && current_stream.fail())) {
-        // TODO still buggy with bool
+      if ((current_stream.tellg() != first->size()) || current_stream.fail()) {
         using namespace std::literals;
         throw UserError {"Couldn't parse '"s + *first + "'."};
       } // TODO more info
