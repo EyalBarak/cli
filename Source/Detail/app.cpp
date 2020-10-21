@@ -83,6 +83,10 @@ namespace cli {
   void App::metaCommand(const std::vector<std::string>& cmd_line) {
     assert(!cmd_line.empty());
 
+    if (cmd_line.front() == Back && calls_.size() == 1) {
+      throw UserError {"Cannot go back from main menu."};
+    }
+
     auto it {std::find_if(meta_commands_.cbegin(), meta_commands_.cend(),
                           [&cmd_line](const auto& cmd) {
                             return (cmd.name() == cmd_line.front());
@@ -125,6 +129,8 @@ namespace cli {
     }
 
     for (const auto& cmd : meta_commands_) {
+      if (cmd.name() == Back && calls_.size() == 1) continue;
+
       print_command(cmd);
     }
   }
